@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>| Ravindu Portfolio</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg: #030712;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #6366f1; 
+            --gradient: linear-gradient(90deg, #6366f1, #a855f7);
+            --whatsapp: #25D366;
+            --fb: #1877F2;
+            --in: #0A66C2;
+            .social-link.gh:hover { color: white; }
+        }
+
+        body, html { margin: 0; padding: 0; background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; overflow: hidden; }
+
+        /* Background Blobs */
+        .blob-container { position: fixed; width: 100vw; height: 100vh; z-index: -2; top: 0; left: 0; }
+        .blob { position: absolute; border-radius: 50%; filter: blur(80px); animation: float 20s infinite ease-in-out; mix-blend-mode: screen; }
+        .blob-1 { top: -10%; right: -5%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.05) 100%); animation-duration: 18s; }
+        .blob-2 { bottom: 10%; left: -10%; width: 450px; height: 450px; background: radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, rgba(56, 189, 248, 0.05) 100%); animation-duration: 25s; animation-delay: -5s; }
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(30px, -50px) scale(1.1); } 66% { transform: translate(-20px, 20px) scale(0.9); } 100% { transform: translate(0, 0) scale(1); } }
+
+        /* Navigation (Only Logo Maintained for Clean Look) */
+        nav { display: flex; justify-content: center; align-items: center; padding: 1.5rem 5%; backdrop-filter: blur(15px); border-bottom: 1px solid var(--glass-border); position: fixed; top: 0; left: 0; width: 100%; box-sizing: border-box; z-index: 100; }
+        .logo { font-weight: 700; font-size: 1.5rem; letter-spacing: 1px; }
+        .logo span { color: var(--accent); }
+
+        /* Global Dynamic Image (Desktop View Default) */
+        .global-image { position: fixed; bottom: 0; left: 0; width: 45vw; height: 90%; z-index: 1; pointer-events: none; transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1), opacity 1s ease; transform: translateX(55vw); }
+        .global-image img { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; object-fit: contain; object-position: bottom; transition: opacity 1s ease; opacity: 0; filter: drop-shadow(0 0 20px rgba(0,0,0,0.5)); }
+        .global-image img.show { opacity: 0.85; }
+        .mask-right { mask-image: linear-gradient(to left, rgba(0,0,0,1) 50%, rgba(0,0,0,0)); -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 50%, rgba(0,0,0,0)); }
+        .mask-left { mask-image: linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0)); -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 50%, rgba(0,0,0,0)); }
+
+        /* Section Styling */
+        .section { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; padding: 6rem 10% 0; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; opacity: 0; pointer-events: none; z-index: 10; transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); transform: translateX(100vw) rotate(15deg) scale(0.9); }
+        .section.active { opacity: 1; pointer-events: auto; transform: translateX(0) rotate(0) scale(1); }
+        .section.hidden-left { opacity: 0; transform: translateX(-100vw) rotate(-15deg) scale(0.9); }
+        
+        #home { transform: translateX(100vw); flex-direction: row; align-items: center; }
+        #home.active { transform: translateX(0); }
+        #home.hidden-left { transform: translateX(-100vw); }
+
+        #about.hidden-split { transform: translateX(0); opacity: 0; pointer-events: none; }
+        .card-left, .card-right { transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); }
+        #about.hidden-split .card-left { transform: translateX(-80vw) rotate(-20deg) scale(0.8); opacity: 0; }
+        #about.hidden-split .card-right { transform: translateX(80vw) rotate(20deg) scale(0.8); opacity: 0; }
+
+        /* General Content Styles */
+        .section-title { font-size: 2.5rem; font-weight: 700; margin-bottom: 3rem; text-align: center; }
+        .gradient-text { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .glass-card { background: var(--glass); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 2.5rem; }
+        .badge { display: inline-block; background: var(--glass); border: 1px solid var(--glass-border); padding: 0.5rem 1.2rem; border-radius: 30px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem; color: #e2e8f0; }
+        
+        .hero-content h1 { font-size: clamp(3rem, 6vw, 5rem); margin: 0; line-height: 1.1; }
+        .hero-content p { color: #94a3b8; font-size: 1.15rem; line-height: 1.6; margin: 1.5rem 0 2.5rem 0; max-width: 600px; }
+        .primary-btn { background: var(--gradient); border: none; padding: 1rem 2.5rem; color: white; border-radius: 12px; font-weight: 600; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); font-family: 'Inter', sans-serif; }
+        .primary-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5); }
+
+        .about-grid, .projects-grid { display: grid; gap: 3rem; max-width: 1000px; margin: 0 auto; width: 100%; grid-template-columns: 1fr 1fr; }
+        
+        /* Contact Box Styles */
+        .contact-container { max-width: 700px; margin: 0 auto; width: 100%; text-align: center; }
+        .contact-buttons { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: 2rem; }
+        
+        .btn-wa { background: var(--whatsapp); color: white; border: none; padding: 1rem 2rem; border-radius: 12px; font-weight: 600; font-family: 'Inter', sans-serif; font-size: 1rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-wa:hover { box-shadow: 0 0 20px rgba(37, 211, 102, 0.5); transform: translateY(-3px); }
+        
+        .btn-email { background: var(--glass); border: 1px solid var(--glass-border); color: white; padding: 1rem 2rem; border-radius: 12px; font-weight: 600; font-family: 'Inter', sans-serif; font-size: 1rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
+        .btn-email:hover { border-color: var(--accent); transform: translateY(-3px); }
+        
+        .social-links { display: flex; justify-content: center; gap: 2rem; margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 2rem; }
+        .social-link { color: #94a3b8; text-decoration: none; font-size: 1.8rem; transition: 0.3s; }
+        .social-link:hover { transform: translateY(-5px); display: inline-block; }
+        .social-link.fb:hover { color: var(--fb); }
+        .social-link.in:hover { color: var(--in); }
+
+        /* --- Virtual Popup Modals (Chat Boxes) --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.4s; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .modal-box { width: 90%; max-width: 400px; transform: scale(0.8) translateY(30px); transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1); text-align: left; }
+        .modal-overlay.active .modal-box { transform: scale(1) translateY(0); }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h3 { margin: 0; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+        .close-btn { background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+        .close-btn:hover { color: #ef4444; }
+
+        .input-group { margin-bottom: 1rem; }
+        .input-group label { display: block; color: #94a3b8; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .input-group input, .input-group textarea { width: 100%; padding: 0.8rem; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; font-family: 'Inter', sans-serif; outline: none; box-sizing: border-box; }
+        .input-group input:focus, .input-group textarea:focus { border-color: var(--accent); }
+        
+        .modal-btn { width: 100%; justify-content: center; margin-top: 10px; }
+        /* --- NEW: Projects Grid & Cards --- */
+        .projects-grid { 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Automatically align cards */
+            gap: 2rem; 
+        }
+        .project-card { 
+            background: var(--glass); border: 1px solid var(--glass-border); 
+            border-radius: 16px; overflow: hidden; cursor: pointer; 
+            transition: all 0.4s ease; backdrop-filter: blur(10px); 
+        }
+        .project-card:hover { 
+            transform: translateY(-10px); border-color: var(--accent); 
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2); 
+        }
+        .project-img { 
+            width: 100%; height: 180px; object-fit: cover; 
+            border-bottom: 1px solid var(--glass-border); 
+        }
+        .project-info { padding: 1.2rem; text-align: center; }
+        .project-info h3 { margin: 0; font-size: 1.1rem; font-weight: 600; }
+
+        /* --- NEW: Project Modal Specific Styles --- */
+        .project-modal-box { max-width: 500px; }
+        .p-modal-img { 
+            width: 100%; height: 220px; object-fit: cover; 
+            border-radius: 12px; margin-bottom: 1.5rem; 
+        }
+        .p-modal-desc { 
+            color: #94a3b8; line-height: 1.6; margin-bottom: 1.5rem; font-size: 0.95rem; 
+        }
+        /* =========================================
+           MOBILE RESPONSIVENESS & IMAGE FIX
+           ========================================= */
+        @media (max-width: 768px) {
+            /* Fix Image to top nicely on mobile */
+            .global-image {
+                width: 100vw;
+                height: 100vh;
+                top: 0;
+                left: 0;
+                transform: none !important; /* Disable side-to-side moving on mobile */
+                z-index: 0;
+            }
+            .global-image img {
+                object-fit: cover; /* Cover the screen area */
+                object-position: center top; /* Align image from the top */
+                filter: drop-shadow(0 0 10px rgba(0,0,0,0.8));
+            }
+            .global-image img.show {
+                opacity: 0.35 !important; /* Low opacity on mobile to read text easily */
+            }
+
+            /* Adjust Cards & Fonts for Mobile */
+            .section {
+                padding: 6rem 6% 2rem;
+                justify-content: center;
+                text-align: center;
+            }
+            
+            #home {
+                flex-direction: column;
+                text-align: center;
+            }
+            .hero-content {
+                z-index: 5;
+            }
+            .hero-content h1 {
+                font-size: clamp(2.5rem, 10vw, 3.5rem);
+            }
+            .hero-content p {
+                margin: 1.2rem auto 2rem auto;
+                font-size: 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            /* Make Grid 1 Column and adjust card padding */
+            .about-grid, .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            .glass-card {
+                padding: 1.5rem;
+                text-align: left; /* Keep card text aligned nicely */
+            }
+
+            .contact-buttons {
+                flex-direction: column;
+            }
+
+            /* Mobile Card Animations Override */
+            #about.hidden-split .card-left { transform: translateY(-20vh) scale(0.9); }
+            #about.hidden-split .card-right { transform: translateY(20vh) scale(0.9); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="blob-container">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <nav>
+        <div class="logo">Ravindu Dilhan Maddumage <span>.</span></div>
+    </nav>
+
+    <div class="global-image" id="heroImage">
+        <img src="Copilot_20260414_000910.png" class="mask-right show" id="imgRight">
+        <img src="Copilot_20260414_000910.png" class="mask-left" id="imgLeft">
+    </div>
+
+    <section id="home" class="section active">
+        <div class="hero-content">
+            <span class="badge">Software,Web Application designer & Developer</span>
+            <h1>Building <br> Digital <span class="gradient-text">World.</span></h1>
+            <p>I merge cutting-edge design with clean code to create unique, highly interactive online experiences.</p>
+            <button class="primary-btn" onclick="changeSection('projects')">View My Work</button>
+        </div>
+    </section>
+
+    <section id="about" class="section">
+        <h2 class="section-title">About <span class="gradient-text">Me</span></h2>
+        <div class="about-grid">
+            <div class="glass-card card-left">
+                <h3>Who am I?</h3>
+                <p style="color: #94a3b8; line-height: 1.8; margin-bottom: 0;">
+                    Hello! I'm Ravindu. I have a passion for creating modern, beautiful, and highly functional websites. As a continuous learner, I am currently expanding my skills by practicing system design. I believe in minimalism, clean code, and premium experiences.
+                </p>            
+            </div>
+            <div class="glass-card card-right">
+                <h3>My Skills</h3>
+                <p style="color: #94a3b8; line-height: 1.8; margin-bottom: 0;">
+                    HTML5, CSS3, JavaScript<br>
+                    UI/UX Design & Animations<br>
+                    Dynamic Page Transitions<br>
+                    Creative Problem Solving
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects" class="section">
+    <h2 class="section-title">Featured <span class="gradient-text">Projects</span></h2>
+    <div class="projects-grid">
+        
+        <div class="project-card" onclick="showProject('Modern E-Commerce', 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600', 'A fully functional online store with an interactive cart, payment gateway integration, and a modern, responsive user interface.')">
+            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600" alt="E-Commerce" class="project-img">
+            <div class="project-info">
+                <h3>Modern E-Commerce</h3>
+            </div>
+        </div>
+
+        <div class="project-card" onclick="showProject('Portfolio System', 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600', 'A highly interactive personal branding portfolio featuring glassmorphism design and smooth page transitions.')">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600" alt="Portfolio" class="project-img">
+            <div class="project-info">
+                <h3>Portfolio System</h3>
+            </div>
+        </div>
+
+        <div class="project-card" onclick="showProject('Management App', 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600', 'A cloud-based management dashboard that allows users to track statistics, manage data efficiently, and generate analytical reports.')">
+            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600" alt="Dashboard" class="project-img">
+            <div class="project-info">
+                <h3>Management App</h3>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+    <section id="contact" class="section">
+        <h2 class="section-title">Let's <span class="gradient-text">Talk</span></h2>
+        <div class="contact-container glass-card">
+            <p style="color: #94a3b8; font-size: 1.1rem; margin-bottom: 2rem;">Ready to start your next project? Drop a message below.</p>
+            
+            <div class="contact-buttons">
+                <button class="btn-wa" onclick="openModal('modalWA')">
+                    <i class="fab fa-whatsapp"></i> Chat on WhatsApp
+                </button>
+                <button class="btn-email" onclick="openModal('modalEmail')">
+                    <i class="fas fa-envelope"></i> Send Email
+                </button>
+            </div>
+
+            <div class="social-links">
+                <a href="https://www.facebook.com/share/18DoweHDgg/" target="_blank" class="social-link fb"><i class="fab fa-facebook"></i></a>
+                <a href="https://www.linkedin.com/in/ravindu-dilhan-370063249" target="_blank" class="social-link in"><i class="fab fa-linkedin"></i></a>
+                <a href="" target="_blank" class="social-link gh"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <div class="modal-overlay" id="modalWA">
+        <div class="glass-card modal-box">
+            <div class="modal-header">
+                <h3 style="color: var(--whatsapp);"><i class="fab fa-whatsapp"></i> Live Chat</h3>
+                <button class="close-btn" onclick="closeModals()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="input-group">
+                <label>Your Message</label>
+                <textarea id="waMessage" rows="4" placeholder="Hi Ravindu, I would like to work with you..."></textarea>
+            </div>
+            <button class="btn-wa modal-btn" onclick="sendWA()">
+                <i class="fas fa-paper-plane"></i> Send via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalEmail">
+        <div class="glass-card modal-box">
+            <div class="modal-header">
+                <h3 style="color: var(--accent);"><i class="fas fa-envelope"></i> Send Email</h3>
+                <button class="close-btn" onclick="closeModals()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="input-group">
+                <label>Subject</label>
+                <input type="text" id="emailSubject" placeholder="Project Inquiry">
+            </div>
+            <div class="input-group">
+                <label>Message</label>
+                <textarea id="emailMessage" rows="4" placeholder="Hello Ravindu..."></textarea>
+            </div>
+            <button class="btn-email modal-btn" style="border-color:var(--accent); background:var(--gradient);" onclick="sendEmail()">
+                <i class="fas fa-paper-plane"></i> Open Mail App
+            </button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modalProject">
+    <div class="glass-card modal-box project-modal-box">
+        <div class="modal-header">
+            <h3 id="pModalTitle" style="color: var(--accent);">Project Name</h3>
+            <button class="close-btn" onclick="closeModals()"><i class="fas fa-times"></i></button>
+        </div>
+        <img id="pModalImg" src="" alt="Project Image" class="p-modal-img">
+        <p id="pModalDesc" class="p-modal-desc">Project details will appear here...</p>
+        
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+            <a id="pModalLink" href="#" target="_blank" class="primary-btn modal-btn" style="text-decoration: none; text-align: center; flex: 1; background: var(--accent);">Visit Project</a>
+            <button class="primary-btn modal-btn" style="flex: 1; background: rgba(255,255,255,0.1); color: white;" onclick="closeModals()">Close</button>
+        </div>
+    </div>
+</div>
+
+    <script>
+        // --- 1. Section Changing Animation ---
+        const sectionsOrder = ['home', 'about', 'projects', 'contact'];
+        let currentSection = 'home';
+        let isAnimating = false;
+
+        function changeSection(target) {
+            if (currentSection === target || isAnimating) return;
+            isAnimating = true;
+
+            const currentEl = document.getElementById(currentSection);
+            const targetEl = document.getElementById(target);
+            const heroImage = document.getElementById('heroImage');
+            const imgRight = document.getElementById('imgRight');
+            const imgLeft = document.getElementById('imgLeft');
+
+            // Image Control (Desktop only changes, Mobile handles with CSS !important)
+            if (target === 'home') {
+                heroImage.style.transform = 'translateX(55vw)'; heroImage.style.opacity = '1';
+                imgRight.classList.add('show'); imgLeft.classList.remove('show');
+            } else if (target === 'about') {
+                heroImage.style.transform = 'translateX(-5vw)'; heroImage.style.opacity = '1';
+                imgLeft.classList.add('show'); imgRight.classList.remove('show');
+            } else { 
+                heroImage.style.opacity = '0.1'; 
+            }
+
+            // Transitions
+            if (currentSection === 'about' && target === 'projects') { 
+                currentEl.className = 'section hidden-split'; 
+            } else { 
+                currentEl.className = 'section hidden-left'; 
+            }
+
+            targetEl.className = 'section active';
+            currentSection = target;
+
+            setTimeout(() => {
+                isAnimating = false;
+            }, 1200);
+        }
+
+        // --- 2. Mouse Wheel Scroll Logic (PC) ---
+        window.addEventListener('wheel', (e) => {
+            if (isAnimating || document.querySelector('.modal-overlay.active')) return;
+
+            let currentIndex = sectionsOrder.indexOf(currentSection);
+            if (e.deltaY > 0) {
+                if (currentIndex < sectionsOrder.length - 1) {
+                    changeSection(sectionsOrder[currentIndex + 1]);
+                }
+            } else if (e.deltaY < 0) {
+                if (currentIndex > 0) {
+                    changeSection(sectionsOrder[currentIndex - 1]);
+                }
+            }
+        });
+
+        // --- 3. Touch Swipe Logic (Mobile) ---
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        window.addEventListener('touchstart', e => {
+            touchStartY = e.changedTouches[0].screenY;
+        });
+
+        window.addEventListener('touchend', e => {
+            if (isAnimating || document.querySelector('.modal-overlay.active')) return;
+            
+            touchEndY = e.changedTouches[0].screenY;
+            let currentIndex = sectionsOrder.indexOf(currentSection);
+            
+            if (touchStartY - touchEndY > 50) {
+                if (currentIndex < sectionsOrder.length - 1) {
+                    changeSection(sectionsOrder[currentIndex + 1]);
+                }
+            } 
+            else if (touchEndY - touchStartY > 50) {
+                if (currentIndex > 0) {
+                    changeSection(sectionsOrder[currentIndex - 1]);
+                }
+            }
+        });
+
+        // --- 4. Virtual Chat Box Logic ---
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal-overlay').forEach(modal => modal.classList.remove('active'));
+        }
+
+        function sendWA() {
+            let msg = document.getElementById('waMessage').value;
+            let phone = "94761919962"; 
+            
+            if(msg.trim() !== "") {
+                let waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+                window.open(waUrl, '_blank');
+                closeModals();
+                document.getElementById('waMessage').value = ''; 
+            } else {
+                alert("Please type a message first!");
+            }
+        }
+        // --- NEW: Project Modal Data Loader ---
+        // --- Project Modal Data Loader ---
+        function showProject(title, imgUrl, description, projectLink) {
+            document.getElementById('pModalTitle').innerText = title;
+            document.getElementById('pModalImg').src = imgUrl;
+            document.getElementById('pModalDesc').innerText = description;
+            
+            // Link එක දාන කොටස
+            let linkBtn = document.getElementById('pModalLink');
+            if(projectLink) {
+                linkBtn.style.display = 'block'; // Link එකක් දුන්නොත් පෙන්නනවා
+                linkBtn.href = projectLink;
+            } else {
+                linkBtn.style.display = 'none'; // Link එකක් නැත්තම් බොත්තම හංගනවා
+            }
+
+            openModal('modalProject');
+        }
+
+        function sendEmail() {
+            let sub = document.getElementById('emailSubject').value;
+            let msg = document.getElementById('emailMessage').value;
+            let email = "ravindudilhan492@gmail.com"; 
+            
+            if(msg.trim() !== "") {
+                let mailUrl = `mailto:${email}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(msg)}`;
+                window.open(mailUrl, '_self');
+                closeModals();
+            } else {
+                alert("Please type a message first!");
+            }
+        }
+        
+    </script>
+
+</body>
+</html>
